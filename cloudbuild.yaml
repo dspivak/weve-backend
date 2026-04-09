@@ -1,0 +1,37 @@
+steps:
+  # Build the image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/weve-repo/weve-backend'
+      - '.'
+
+  # Push the image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/weve-repo/weve-backend']
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'weve-backend'
+      - '--image'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/weve-repo/weve-backend'
+      - '--region'
+      - 'us-central1'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'SUPABASE_URL=${_SUPABASE_URL},SUPABASE_ANON_KEY=${_SUPABASE_ANON_KEY},SUPABASE_SERVICE_ROLE_KEY=${_SUPABASE_SERVICE_ROLE_KEY},OPENAI_API_KEY=${_OPENAI_API_KEY},FRONTEND_URL=${_FRONTEND_URL}'
+
+substitutions:
+  _SUPABASE_URL: 'https://wvgfncalgqqgkdtjodtp.supabase.co'
+  _SUPABASE_ANON_KEY: 'your-supabase-anon-key'
+  _SUPABASE_SERVICE_ROLE_KEY: 'your-supabase-service-role-key'
+  _OPENAI_API_KEY: 'your-openai-api-key'
+  _FRONTEND_URL: 'http://localhost:3000' # Update this after deployment if needed
+
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/weve-repo/weve-backend'

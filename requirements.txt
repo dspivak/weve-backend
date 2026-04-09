@@ -1,0 +1,19 @@
+# FastAPI
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+
+# OpenAI (Plausible Fiction generation)
+openai>=1.0.0
+
+# Supabase Auth (no Prisma)
+supabase==2.10.0
+
+# Image optimization (WebP conversion)
+Pillow>=10.0.0
+httpx>=0.27.0
+
+# Env & validation
+python-dotenv==1.0.1
+pydantic[email-validator]==2.10.3
+pydantic-settings==2.6.1
+email-validator>=2.0.0

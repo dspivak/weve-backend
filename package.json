@@ -1,0 +1,13 @@
+{
+  "name": "weve-backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push"
+  },
+  "devDependencies": {
+    "prisma": "^6.0.0"
+  }
+}
