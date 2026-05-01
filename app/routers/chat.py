@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Annotated, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.supabase_client import get_supabase_admin

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pydantic_settings import BaseSettings
 
 
@@ -9,6 +10,7 @@ class Settings(BaseSettings):
     signup_auto_confirm_email: bool = False
     frontend_url: str = "http://localhost:3000"
     openai_api_key: str = ""
+    anthropic_api_key: str = ""
 
     class Config:
         env_file = ".env"

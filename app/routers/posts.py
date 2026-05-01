@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Posts: create draft, update, publish, list feed. Requires auth.
 Uses Supabase REST API with the user's JWT (anon key + Bearer token) so no service role is needed.

@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 Plausible Fiction: refine user prompt and generate post content via OpenAI.
 """

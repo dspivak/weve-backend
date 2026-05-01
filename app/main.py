@@ -1,7 +1,8 @@
+from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, pf, posts, notifications, chat
+from app.routers import auth, pf, posts, notifications, chat, flowchart
 
 app = FastAPI(
     title="Weve API",
@@ -31,6 +32,7 @@ app.include_router(pf.router, prefix="/api")
 app.include_router(posts.router, prefix="/api")
 app.include_router(notifications.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
+app.include_router(flowchart.router, prefix="/api")
 
 @app.get("/")
 def root():
