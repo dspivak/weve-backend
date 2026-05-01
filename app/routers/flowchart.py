@@ -11,14 +11,32 @@ from __future__ import annotations
 import asyncio
 import json
 import re
-from typing import Annotated, Any
+from typing import Annotated, Any, Optional
 
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.config import settings
 from app.flowchart_validator import validate_flowchart_structure
 from app.routers.auth import get_current_user_and_token
+
+_DEV_MODE = settings.env.lower() in ("dev", "development", "local")
+_security = HTTPBearer(auto_error=False)
+
+def _get_optional_user(
+    credentials: Annotated[Optional[HTTPAuthorizationCredentials], Depends(_security)],
+) -> Optional[tuple[dict, str]]:
+    """In dev mode, auth is optional for converse/evaluate. In prod, require it."""
+    if _DEV_MODE and (not credentials or not credentials.credentials):
+        return {"id": "dev-user", "email": "dev@local"}, "dev-token"
+    if not credentials or not credentials.credentials:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    from app.routers.auth import _get_user_from_supabase_token  # local import to avoid circular
+    user_data = _get_user_from_supabase_token(credentials.credentials)
+    if not user_data:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    return user_data, credentials.credentials
 from app.schemas.flowchart import (
     ConverseRequest,
     ConverseResponse,
@@ -272,7 +290,7 @@ def _format_conversation_for_extraction(messages: list[dict]) -> str:
 @router.post("/flowchart/converse", response_model=ConverseResponse)
 async def converse(
     body: ConverseRequest,
-    user_and_token: Annotated[tuple[dict, str], Depends(get_current_user_and_token)],
+    user_and_token: Annotated[Optional[tuple[dict, str]], Depends(_get_optional_user)],
 ):
     """
     Two LLMs in parallel:
@@ -325,7 +343,7 @@ async def converse(
 @router.post("/flowchart/evaluate", response_model=EvaluateResponse)
 async def evaluate(
     body: EvaluateRequest,
-    user_and_token: Annotated[tuple[dict, str], Depends(get_current_user_and_token)],
+    user_and_token: Annotated[Optional[tuple[dict, str]], Depends(_get_optional_user)],
 ):
     """
     Per-task evaluator: assigns likelihood distributions to tasks that lack them.
